@@ -5,7 +5,7 @@ Using pyproj/PROJ to get meridian_convergence
 A common diagram on the side of published maps is a compass rose with an indicator of True North and Magnetic Deviation.
 
 This tool enables you to provide the value of the difference between Grid North and True North.
-[Deeper explaination](http://www.threelittlemaids.co.uk/magdec/explain.html) for the UK, but sadly missing from the NZ Topo 50 map legend. The greatest convergence is to the East and is more than 3 degrees.
+[Deeper explanation](http://www.threelittlemaids.co.uk/magdec/explain.html) for the UK, but sadly missing from the NZ Topo 50 map legend. The convergence in NZTM varies from zero in the central meridian (173 E) and is at a maximum to the East and West of 3 degrees.
 
 The python module pyproj which interfaces to the PROJ tool has had a new function get_factors() added in Feb 2020.
 https://github.com/pyproj4/pyproj/issues/503
