@@ -7,7 +7,7 @@ A common diagram on the side of published maps is a compass rose with an indicat
 This tool enables you to provide the value of the difference between Grid North and True North.
 [Deeper explanation](http://www.threelittlemaids.co.uk/magdec/explain.html) for the UK, but sadly missing from the NZ Topo 50 map legend. The convergence in NZTM varies from zero in the central meridian (173 E) and is at a maximum to the East and West of 3 degrees.
 
-The python module pyproj which interfaces to the PROJ tool has had a new function get_factors() added in Feb 2020.
+The python module pyproj which interfaces to the PROJ tool has had a new function [get_factors()](https://pyproj4.github.io/pyproj/latest/api/proj.html#pyproj-proj-factors) added in Feb 2020.
 https://github.com/pyproj4/pyproj/issues/503
 
 This is a tiny sample script to use this new function.
