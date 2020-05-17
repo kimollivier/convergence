@@ -1,4 +1,13 @@
 # Basic Transverse Mercator
+# ref Ordnance Survey Information Pamphlet
+# Transverse Mercator Projection Constants, Formulae and Methods March 1983
+# Appendix A subroutines in BASIC translated to Python, commented numbers are original BASIC line numbers
+# Mods
+#     remove line numbers
+#     replace subroutines with functions
+#     basic syntax to python syntax ^ to **
+#     make all variables local to functions
+#     
 # Variables 
 # Where possible a variable used in the following 
 # routines is either the same as that used in the 
@@ -21,28 +30,20 @@
 # K4 = Phi2 + Phi1 (Sum Latitudes) 
 # Ga, Gb = (t - T) at line terminals A and B 
 # All angular arguments are in Radians 
-# ref Ordnance Survey Information Pamphlet
-# Transverse Mercator Projection Constants, Formulae and Methods March 1983
-# Appendix A subroutines in BASIC translated to Python, commented numbers are original BASIC line numbers
-# Mods
-#     remove line numbers
-#     replace subroutines with functions
-#     basic syntax to python syntax ^ to **
-#     make all variables local to functions
-#     
+#
 # Kim Ollivier 17 May 2020
 import math
 from math import sin, cos, tan, sqrt
 
-# subroutines renamed as functions
+# BASIC subroutines renamed as functions
 # GOSUB260 = ArcofMeridian
 # GOSUB350 = ComputePhi
 # GOSUB460 = ComputeV
 
-# variables are set for NZTM which is a UTM with custom Central Meridian and False Origin
-# GRS80 a = 6378137.0, 1/f = 298.257222101 used for NZGD2000
+# Global constants are set for NZTM which is a UTM with custom Central Meridian and False Origin
+# GRS80: a = 6378137.0, 1/f = 298.257222101 used for NZGD2000
 # (WGS84 a = 6378137.0 1/f = 298.257223563)
-# f = (a - b) /a
+# f = (a - b) /a so b = a - a.f
 A1 = 6378137.000 # Major semi-axis GRS80
 B1 = 6356752.31414036 # Minor semi-axis GRS80
 F0 = 0.9996 # scale factor at 173.0,0.0 NZTM
@@ -55,8 +56,9 @@ N1 = (A1 - B1)/(A1+B1)
 E2 = (A1**2 - B1**2) / A1**2
 E1 = sqrt(E2)
 
-def ArcofMeridian(N1,B1,K3,K4):
-    """ GOSUB260 
+def ArcofMeridian(N1, B1, K3, K4):
+    """ 
+    Arc of Meridian GOSUB260 
     """
     J3 = (1+N1+5/4*N1**2+5/4*N1**3)*K3 ## 260
     J4 = (3*N1+3*N1**2+21/8*N1**3)*sin(K3)*cos(K4) ## 270
@@ -64,7 +66,6 @@ def ArcofMeridian(N1,B1,K3,K4):
     J6 = 35/24*N1**3*sin(3*K3)*cos(3*K4) ## 290
     M = B1*(J3-J4+J5-J6) ## 300
     return M 
-
 
 def ComputePhi(N, N0, A1, K0):
     """ GOSUB350
@@ -90,7 +91,7 @@ def ComputeV(A1, E2, K):
     H2=V/R-1 ## 480
     return V, R, H2  
 
-def ComputeE_NfromLatLon(K,L,L0=L0,E0=E0,N0=N0,K0=K0,A1=A1):
+def ComputeE_NfromLatLon(K, L, L0=L0, E0=E0, N0=N0, K0=K0, A1=A1):
     """ 
     E & N from Latitude (K) & Longitude (L) 
     """
@@ -113,9 +114,9 @@ def ComputeE_NfromLatLon(K,L,L0=L0,E0=E0,N0=N0,K0=K0,A1=A1):
     return E, N  
 
 
-def ComputeLatLongfromE_N(E,N,N0=N0,E2=E2):
+def ComputeLatLongfromE_N(E, N, N0=N0, E2=E2):
     """Latitude & Longitude from E & N"""
-    K = ComputePhi(N,N0,A1,K0) ## 720
+    K = ComputePhi(N, N0, A1, K0) ## 720
     V, R, H2 = ComputeV(A1, E2, K) ## 730
     Y1=E-E0 ## 740
     J3=tan(K)/(2*R*V) ## 750
@@ -153,9 +154,9 @@ def ComputeConvergencefromE_N(E, N, N0=N0,A1=A1,K0=K0):
     C = Y1*J3 - Y1**3*J4 + Y1**5*J5 ## 1060
     return math.degrees(C)
 
-def ComputeFfromLL(K,L,N=N1,N0=N0,A1=A1,K0=K0):
+def ComputeFfromLL(K,L,A1=A1, F0=F0, L0=L0, E2=E2):
     """F scale factor at a point from Latitude & Longitude"""
-    V, R, H2 = ComputePhi(N, N0, A1, K0) # GOSUB460 ## 1110
+    V, R, H2 = ComputeV(A1, E2, K) # GOSUB460 ## 1110
     P = L - L0 ## 1120
     J3=cos(K)**2/2*(1 +H2) # XIX ## 1130
     J4=cos(K)**4/24*(5-4*tan(K)**2+14*H2-28*tan(K)**2*H2) # XX ## 1140
@@ -172,7 +173,6 @@ def ComputeFfromE_N(E,N,N0=N0,A1=A1,K0=K0):
     F=F0*(1 +Y1**2*J3+Y1**4*J4) ## 1250
     return F 
 
-
 def ComputeTfromE_N(Na, Nb, Y1a, Y1b, N, N0, A1, K0):
     """(t - T) from E, N"""
     N=(Na+ Nb)/2 ## 1300
@@ -183,13 +183,13 @@ def ComputeTfromE_N(Na, Nb, Y1a, Y1b, N, N0, A1, K0):
     Gb=(2*Y1b+Y1a)*(Nb-Na)*J3 ## 1350
     return math.degrees(Ga), math.degrees(Gb)
 
-    # ================= main ======================
+# ================= main ======================
 print("Transverse Mercator")
 k = -37.0
 l = 174.0
 K = math.radians(k)
 L = math.radians(l)
 print("Lat Long:",(k, l), 
-    "E,N:",ComputeE_NfromLatLon(K, L), 
-    "Convergence:", ComputeConvergencefromLL(K, L),
-    "Scale:",ComputeFfromLL(K, L))
+    "\nE,N:",ComputeE_NfromLatLon(K, L), 
+    "\nConvergence:", ComputeConvergencefromLL(K, L),
+    "\nScale:",ComputeFfromLL(K, L))
