@@ -1,13 +1,18 @@
-# Basic Transverse Mercator
+# Transverse Mercator
 # ref Ordnance Survey Information Pamphlet
 # Transverse Mercator Projection Constants, Formulae and Methods March 1983
+# http://www.threelittlemaids.co.uk/magdec/transverse_mercator_projection.pdf
 # Appendix A subroutines in BASIC translated to Python, commented numbers are original BASIC line numbers
-# Mods
-#     remove line numbers
-#     replace subroutines with functions
-#     basic syntax to python syntax ^ to **
-#     make all variables local to functions
-#     
+# Modifications
+#     remove line numbers but keep as a comment for reference
+#     replace GOTO with a while loop
+#     BASIC syntax to python syntax eg for power ^ to **
+#     make all constant variables global for functions
+#     add a driver to input coordinates and call functions
+#     BASIC subroutines renamed as functions
+#       GOSUB260 : ArcofMeridian
+#       GOSUB350 : ComputePhi
+#       GOSUB460 : ComputeV  
 # Variables 
 # Where possible a variable used in the following 
 # routines is either the same as that used in the 
@@ -35,18 +40,14 @@
 import sys
 import math
 from math import sin, cos, tan, sqrt
+import re
 
-# BASIC subroutines renamed as functions
-# GOSUB260 = ArcofMeridian
-# GOSUB350 = ComputePhi
-# GOSUB460 = ComputeV
-
-# define global constants to mimic BASIC, set later
+# define global constants to mimic BASIC, set later depending on projection
 A1, B1, F0, E0, N0, L0, K0, N1, E1, E2 = (None,)*10
 
 def ArcofMeridian(K3, K4):
-    """ 
-    Arc of Meridian GOSUB260 
+    """ GOSUB260 
+    Arc of Meridian 
     """
     J3 = (1+N1+5/4*N1**2+5/4*N1**3)*K3 ## 260
     J4 = (3*N1+3*N1**2+21/8*N1**3)*sin(K3)*cos(K4) ## 270
@@ -57,8 +58,7 @@ def ArcofMeridian(K3, K4):
 
 def ComputePhi(N):
     """ GOSUB350
-    Compute Phi' (K) Latitude ## 340
-    """
+    Compute Phi' (K) Latitude """
     K = K0 + (N - N0)/A1 ## 350 
     K3 = K - K0 ## 360
     K4 = K + K0 ## 370
@@ -72,17 +72,14 @@ def ComputePhi(N):
 
 def ComputeV(K):
     """ GOSUB460 
-    Compute V, R & H2 ## 450
-    """
+    Compute V, R & H2 """
     V=A1/sqrt(1-E2*sin(K)**2) ## 460
     R = V*(1-E2)/(1-E2*sin(K)**2) ## 470
     H2=V/R-1 ## 480
     return V, R, H2  
 
 def ComputeE_NfromLatLon(K, L):
-    """ 
-    E & N from Latitude (K) & Longitude (L) 
-    """
+    """ E & N from Latitude (K) & Longitude (L) """
     K3=K-K0 ## 530
     K4=K+K0 ## 540
     M = ArcofMeridian(K3, K4) ## 550 
@@ -173,12 +170,13 @@ def ComputeTfromE_N(Na, Nb, Y1a, Y1b):
 
 def SetConstants(name):
     """ 
-    set global projection and datum parameters
+    set global projection and datum parameter
     constants for the projection to mimic BASIC
+    these are used in the other internal utility functions
     """
     global A1, B1, F0, E0, N0, L0, K0, N1, E1, E2
     # f = (a-b)/a so b = a-a*f
-    if name == 'NZTM':
+    if name == 'NZT':
         # Global constants for NZTM which is a UTM with custom Central Meridian and False Origin
         # GRS80: a = 6378137.0, 1/f = 298.257222101 used for NZGD2000
         A1 = 6378137.000 # Major semi-axis GRS80
@@ -200,8 +198,8 @@ def SetConstants(name):
         N0 = -100000.0  # false NZTM N origin (m)
         L0 = math.radians(-2.0) # Lamda Longitude NZTM of true origin
         K0 = math.radians(49.0) # Phi Latitude NZTM equator true origin
-    elif name.beginswith('UTM'):
-        # eg name = WGS30N
+    elif name[0:3] == 'UTM':
+        # eg name = UTM30N
         # (WGS84 a = 6378137.0 1/f = 298.257223563)
         zone = int(name[3:-1]) # 1 - 60
         hemi = name[-1] 
@@ -217,7 +215,7 @@ def SetConstants(name):
             err = "hemisphere must be N or S"
             print(err)
             raise IOError
-        L0 = math.radians(6*int(zone) - 183.0) # mid every 6 degrees
+        L0 = math.radians(6*int(zone) - 183.0) # mid meridian every 6 degrees
         K0 = math.radians(0.0)
         A1 = 6378137.0
         inv_f = 1.0/298.257223563
@@ -226,37 +224,50 @@ def SetConstants(name):
     else:
         print("unrecognised projection name:", name)
         raise IOError 
-    # common derived parameter constants
+    # derived parameter constants common to all TM projections 
     B1 = A1 - A1*inv_f
     N1 = (A1 - B1)/(A1 + B1)
     E2 = (A1**2 - B1**2) / A1**2
     E1 = sqrt(E2)
     return
 
-# ================= main ======================
-print("Transverse Mercator v 3.0")
+# ============================= main ===============================
+print("Transverse Mercator v 3.1")
 DEBUG = False
 try:
     l = float(sys.argv[1])
     k = float(sys.argv[2])
     if sys.argv.count() == 4:
-        name = sys.argv[3].upper()
+        name = sys.argv[3].upper()[0:3]
     else:
-        name = 'NZTM'
+        name = 'NZT'
 except:
     k = -40.0
     l = 178.0
-    name = 'NZTM' # default or BNP or UTM<zone><hemisphere> eg UTM30N
-    print("Usage basic3.py lon(dd) lat(dd) {name NZTM|BNP|UTM<zone><N|S>}")
-print("defaults",k,l,name)
-SetConstants(name)
+    name = 'NZT' # default or BNP or UTM<zone><hemisphere> eg UTM30N
+    print("Usage: transverse.py lon(dd) lat(dd) {name NZT|BNP|UTM<zone><N|S>}")
+print("defaults", l, k, name)
+# validate bounds
+if not re.match("NZT|BNP|WGS[1-6][0-9](N|S)", name):
+    print("Unknown projection: ", name)
+    print("Usage: transverse.py lon(dd) lat(dd) {name NZTM|BNP|UTM<zone><N|S>}")
+    raise IOError
+bounds = {'NZT':(166,-60,180,-30),'BNP':(-10,50,10,30),'UTM':(-180,-90,180,90)}
+if not bounds[name][1] <= k <= bounds[name][3]:
+    print(k, 'latitude not in range', bounds[name][1], bounds[name][3])
+    raise IOError 
+if not bounds[name][0] <= l <= bounds[name][2]:
+    print(l, 'longitude not in range', bounds(name)[0], bounds[name][2])
+    raise IOError 
+# Note does not test for valid UTM zone coordinates
 K = math.radians(k)
 L = math.radians(l)
+SetConstants(name)
 if DEBUG: 
     for gvar in ['A1', 'B1', 'F0', 'E0', 'N0', 'L0', 'K0', 'N1', 'E1', 'E2']:
         print(gvar, eval(gvar))
     
-print("\nLat Long:",(k, l), 
+print("\nLong Lat:",(l, k), 
     "\nE, N:",ComputeE_NfromLatLon(K, L), name,
     "\nConvergence:", ComputeConvergencefromLL(K, L),
     "\nScale:",ComputeFactorfromLL(K, L))
