@@ -299,7 +299,7 @@ if __name__ == '__main__':
         *ComputeE_NfromLatLon(K, L), name),
         "\nConvergence:{:8.3f} ".format(ComputeConvergencefromLL(K, L)),
         "\nScale:        {:5.4f}".format(ComputeFactorfromLL(K, L)))
-    # test bulk process
+    # test bulk process 
     """import csv
     with open("D:/project/geodesy/sample.txt", "r") as f1:
         csvreader = csv.reader(f1)
