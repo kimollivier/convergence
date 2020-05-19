@@ -1,6 +1,14 @@
 # Meridian Convergence
 
-Using pyproj/PROJ to get meridian_convergence, the difference in bearing between True North and Grid North on a map.
+It is quite hard to find a way of calculating convergence, the difference in bearing between True North and Grid North on a map..
+
+* Use pyproj/PROJ to get meridian_convergence
+This works for any projection but is a sledgehammer solution for Transverse Mercator or UTM
+* Use the published equations from the UK Ordnance Survey 1983
+The equations are daunting and they have an example written in and early BASIC
+I have translated this to Python. only the standard math module is required
+
+The two methods agree closely on test coordinates.
 
 A common diagram on the side of published maps is a compass rose with an indicator of True North and Magnetic Deviation.
 
@@ -17,7 +25,11 @@ Unfortunately there is a difference in definition of convergence (from True Nort
 
 **Magnetic Deviation** is not as easily calculated. It has to be measured and it changes over time. The UK comes to the rescue here with an excellent [website](http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html) that has an API to return the deviation for any lat/long pair of coordinates. A simple **requests** module based python script will get these values too.
 
-## Prerequisites:
+## Prerequisites for transverse option:
++ Python 2 or 3 any version
++ standard library math module
+
+## Prerequisites for pyproj option:
 + PROJ 6.2+ is required
 + pyproj 2.6.1.post1 is required
 + Python 3.4+ is require
