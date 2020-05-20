@@ -5,13 +5,13 @@ It is quite hard to find a way of calculating convergence, the difference in bea
 * Use pyproj/PROJ to get meridian_convergence.
 
 This works for any projection but is a sledgehammer solution for Transverse Mercator or UTM
-just use my example script transverse.py
 
 * Use the published equations from the UK Ordnance Survey 1983.
 
 The equations are daunting but they have an example written in and early BASIC.
 I have translated this to Python. only the standard math module is required.
 This only supports Transverse Mercator projections, but that is a very common case.
+Use my example script **transverse.py**
 
 The two methods agree closely on test coordinates. See the Wiki for more information and installation
 
