@@ -5,6 +5,7 @@ It is quite hard to find a way of calculating convergence, the difference in bea
 A common diagram on the side of published maps is a compass rose with an indicator of True North and Magnetic Deviation.
 Both values are needed to find the Deviation from Grid North. True North is sadly missing from the NZ Topo 50 map legend.
 These tools enable you to provide the value of the difference between Grid North and True North and hence Magnetic to Grid difference.
+The topo maps add the True to Grid offset to just provide a Grid to Magnetic deviation.
 
 * Use pyproj/PROJ to get meridian_convergence.
 
@@ -48,3 +49,5 @@ PS D:\project\geodesy> & c:/ProgramData/Anaconda3/envs/proj/python.exe d:/projec
 (2026893.3022699037, 5560253.082980049) -3.2187882335062867 NZGD2000 / New Zealand Transverse Mercator 2000
 PS D:\project\geodesy> 
 ```
+
+The next item to obtain is the magnetic deviation. This is conveniently supplied by the BGS site with a little REST interface. The site is very rate-limited so you have to pace your requests. Even that was not enough and I get thrown out easily. In the end I built a little database in sqlite to store the results. You can just keep re-running the script until all points are retrieved.
