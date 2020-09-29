@@ -33,6 +33,6 @@ try:
 except:
     longitude = 174.5
     latitude = -36.5
-    date = '2020-05-25'
+date = '2020-05-25'
 result = get_declination(longitude, latitude, date)
 print(longitude, latitude, date, result[0]['value'],result[0]['units'], result[1]['value'], result[1]['units'])
