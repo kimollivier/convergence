@@ -50,4 +50,5 @@ PS D:\project\geodesy> & c:/ProgramData/Anaconda3/envs/proj/python.exe d:/projec
 PS D:\project\geodesy> 
 ```
 
-The next item to obtain is the magnetic deviation. This is conveniently supplied by the BGS site with a little REST interface. The site is very rate-limited so you have to pace your requests. Even that was not enough and I get thrown out easily. In the end I built a little database in sqlite to store the results. You can just keep re-running the script until all points are retrieved.
+## Magnetic Deviation
+The next item to obtain is the magnetic deviation. This is conveniently supplied by the BGS site with a little REST interface. The site is very rate-limited so you have to pace your requests. Even that was not enough and I get thrown out easily. In the end I built a little database in sqlite to store the results. You can just keep re-running the script until all points are retrieved. There is a sample mag_dec.py script that works for a one off and another that uses arcpy to extract some centroids of map sheets in lat/long and then save the results in an sqlite file. I have added a delay but even that is not enough for a lot of sheets.
