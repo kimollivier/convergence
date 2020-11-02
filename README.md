@@ -56,3 +56,4 @@ A new script just added index_mag_dev.py works for an Esri featureclass called "
 
 ## QGIS Plugins
 There are some excellent plugins **Magnetic Declination**  and **Azimuth and Distance Calculator** that manage to extract the magnetic deviation (because the model is built-in) and convergence without a rest web service. They are not combined so you would have to separately extract the valued and add them. They also are not easy to incorporate into a script that iterates over a whole layer of index sheets. TODO: combine the two plugins and automate for a whole atlas.
+Note that the WMM parameters change each year and have a 5 year prediction. The plugin I downloaded has the latest parameter file built in but the unittest has not been updated for the new values.
