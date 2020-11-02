@@ -52,3 +52,7 @@ PS D:\project\geodesy>
 
 ## Magnetic Deviation
 The next item to obtain is the magnetic deviation. This is conveniently supplied by the BGS site with a little REST interface. The site is very rate-limited so you have to pace your requests. Even that was not enough and I get thrown out easily. In the end I built a little database in sqlite to store the results. You can just keep re-running the script until all points are retrieved. There is a sample mag_dec.py script that works for a one off and another that uses arcpy to extract some centroids of map sheets in lat/long and then save the results in an sqlite file. I have added a delay but even that is not enough for a lot of sheets.
+A new script just added index_mag_dev.py works for an Esri featureclass called "SquareIndex". It stores the results in a sqlite database that can be used to calculate the deviation from Grid North. Esri tools include a convergence function.
+
+## QGIS Plugins
+There are some excellent plugins **Magnetic Declination**  and **Azimuth and Distance Calculator** that manage to extract the magnetic deviation (because the model is built-in) and convergence without a rest web service. They are not combined so you would have to separately extract the valued and add them. They also are not easy to incorporate into a script that iterates over a whole layer of index sheets. TODO: combine the two plugins and automate for a whole atlas.
